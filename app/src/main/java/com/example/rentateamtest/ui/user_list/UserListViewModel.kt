@@ -1,10 +1,10 @@
-package com.example.rentateamtest.ui.users
+package com.example.rentateamtest.ui.user_list
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class UsersViewModel : ViewModel() {
+class UserListViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
         value = "This is home Fragment"
