@@ -33,11 +33,7 @@ class UserListRecyclerViewAdapter(
             itemView.findViewById<TextView>(R.id.user_first_name).text = user.firstName
             itemView.findViewById<TextView>(R.id.user_last_name).text = user.lastName
             val parentLayout = itemView.findViewById<RelativeLayout>(R.id.parent_layout_users)
-            parentLayout?.setOnClickListener { _ ->
-                run {
-                    navigateToCard.invoke(user)
-                }
-            }
+            parentLayout?.setOnClickListener { navigateToCard.invoke(user) }
         }
     }
 }
