@@ -1,20 +1,30 @@
 package com.example.rentateamtest.repository
 
+import com.example.rentateamtest.App
 import com.example.rentateamtest.database.AppDatabase
 import com.example.rentateamtest.database.UserConverter
-import com.example.rentateamtest.model.RetrofitComponent
+import com.example.rentateamtest.model.RetrofitProvider
 import com.example.rentateamtest.model.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class OnlineUserListRepository(
-    private val retrofitComponent: RetrofitComponent,
-    private val appDatabase: AppDatabase
-) : IUserListRepository {
+@Suppress("ProtectedInFinal")
+class OnlineUserListRepository : IUserListRepository {
+
+    @Inject
+    protected lateinit var retrofitProvider: RetrofitProvider
+
+    @Inject
+    protected lateinit var appDatabase: AppDatabase
+
+    init {
+        App.appComponent.inject(this)
+    }
 
     override fun getUserList(): ArrayList<User>? {
-        val networkInterface = retrofitComponent.getNetworkInterface()
+        val networkInterface = retrofitProvider.getNetworkInterface()
         val response = networkInterface.getUserListResponse().execute()
         return if (response.isSuccessful) {
             val list = response.body()?.userList

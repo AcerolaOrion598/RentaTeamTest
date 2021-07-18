@@ -6,7 +6,7 @@ class Utils {
 
     companion object {
         @Throws(InterruptedException::class, IOException::class)
-        fun isInternetAvailable(): Boolean {
+        fun isServerAvailable(): Boolean {
             val command = "ping -c 1 reqres.in"
             return Runtime.getRuntime().exec(command).waitFor() == 0
         }

@@ -10,9 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.rentateamtest.MainActivity
 import com.example.rentateamtest.R
-import com.example.rentateamtest.database.AppDatabase
 import com.example.rentateamtest.databinding.FragmentUserListBinding
-import com.example.rentateamtest.model.RetrofitComponent
 import com.example.rentateamtest.model.User
 import com.example.rentateamtest.repository.IUserListRepository
 import com.example.rentateamtest.repository.UserListRepositoryFactory
@@ -26,8 +24,6 @@ import kotlinx.coroutines.launch
 class UserListFragment : Fragment() {
 
     private var binding: FragmentUserListBinding? = null
-    private val retrofitComponent = RetrofitComponent()
-    private lateinit var appDatabase: AppDatabase
     private lateinit var userListViewModel: UserListViewModel
 
     override fun onCreateView(
@@ -35,7 +31,6 @@ class UserListFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        appDatabase = AppDatabase.getInstance(requireContext())
         userListViewModel = ViewModelProvider(this).get(UserListViewModel::class.java)
         binding = FragmentUserListBinding.inflate(inflater, container, false)
         return binding!!.root
@@ -65,9 +60,7 @@ class UserListFragment : Fragment() {
         GlobalScope.launch(Dispatchers.IO) {
             val userListRepository: IUserListRepository
             try {
-                userListRepository = UserListRepositoryFactory(
-                    retrofitComponent, appDatabase
-                ).build()
+                userListRepository = UserListRepositoryFactory().build()
             } catch (e: Exception) {
                 displayLoadingError()
                 return@launch

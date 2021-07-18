@@ -1,11 +1,16 @@
 package com.example.rentateamtest.model
 
+import com.example.rentateamtest.App
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class RetrofitComponent {
+class RetrofitProvider {
 
     private var networkInterface: NetworkInterface? = null
+
+    init {
+        App.appComponent.inject(this)
+    }
 
     fun getNetworkInterface(): NetworkInterface {
         if (networkInterface == null) {

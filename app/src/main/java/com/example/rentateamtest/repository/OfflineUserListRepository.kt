@@ -1,10 +1,20 @@
 package com.example.rentateamtest.repository
 
+import com.example.rentateamtest.App
 import com.example.rentateamtest.database.AppDatabase
 import com.example.rentateamtest.database.UserConverter
 import com.example.rentateamtest.model.User
+import javax.inject.Inject
 
-class OfflineUserListRepository(private val appDatabase: AppDatabase) : IUserListRepository {
+@Suppress("ProtectedInFinal")
+class OfflineUserListRepository : IUserListRepository {
+
+    @Inject
+    protected lateinit var appDatabase: AppDatabase
+
+    init {
+        App.appComponent.inject(this)
+    }
 
     override fun getUserList(): ArrayList<User> {
         val userDao = appDatabase.userDao()
