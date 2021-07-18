@@ -8,9 +8,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.rentateamtest.MainActivity
 import com.example.rentateamtest.R
+import com.example.rentateamtest.database.AppDatabase
 import com.example.rentateamtest.databinding.FragmentUserListBinding
 import com.example.rentateamtest.model.RetrofitComponent
 import com.example.rentateamtest.model.User
@@ -25,21 +25,20 @@ import kotlinx.coroutines.launch
 
 class UserListFragment : Fragment() {
 
-    private var _binding: FragmentUserListBinding? = null
-    private val binding get() = _binding!!
+    private var binding: FragmentUserListBinding? = null
     private val retrofitComponent = RetrofitComponent()
+    private lateinit var appDatabase: AppDatabase
     private lateinit var userListViewModel: UserListViewModel
-    private lateinit var userListRecyclerView: RecyclerView
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        appDatabase = AppDatabase.getInstance(requireContext())
         userListViewModel = ViewModelProvider(this).get(UserListViewModel::class.java)
-        _binding = FragmentUserListBinding.inflate(inflater, container, false)
-        userListRecyclerView = binding.userListRecyclerView
-        return binding.root
+        binding = FragmentUserListBinding.inflate(inflater, container, false)
+        return binding!!.root
     }
 
 
@@ -47,16 +46,18 @@ class UserListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         loadUserList()
-        binding.tryAgain.setOnClickListener {
-            binding.errorContainer.visibility = View.GONE
-            binding.userListProgressBar.visibility = View.VISIBLE
-            loadUserList()
+        binding?.let {
+            it.tryAgain.setOnClickListener { _ ->
+                it.errorContainer.visibility = View.GONE
+                it.userListProgressBar.visibility = View.VISIBLE
+                loadUserList()
+            }
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        binding = null
     }
 
     @SuppressLint("CheckResult")
@@ -64,7 +65,9 @@ class UserListFragment : Fragment() {
         GlobalScope.launch(Dispatchers.IO) {
             val userListRepository: IUserListRepository
             try {
-                userListRepository = UserListRepositoryFactory(retrofitComponent).build()
+                userListRepository = UserListRepositoryFactory(
+                    retrofitComponent, appDatabase
+                ).build()
             } catch (e: Exception) {
                 displayLoadingError()
                 return@launch
@@ -74,30 +77,32 @@ class UserListFragment : Fragment() {
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                    {
-                        displayLoadedList(it)
-                    }, {
-                        displayLoadingError()
-                    }
+                    { displayLoadedList(it) }, { displayLoadingError() }
                 )
         }
     }
 
     private fun displayLoadedList(userList: ArrayList<User>) {
-        userListRecyclerView.adapter = UserListRecyclerViewAdapter(userList, ::navigateToCard)
-        userListRecyclerView.layoutManager = LinearLayoutManager(context)
-        binding.userListProgressBar.visibility = View.GONE
-        binding.userListLayout.visibility = View.VISIBLE
+        binding?.let {
+            it.userListRecyclerView.adapter = UserListRecyclerViewAdapter(
+                userList, ::navigateToCard
+            )
+            it.userListRecyclerView.layoutManager = LinearLayoutManager(context)
+            it.userListProgressBar.visibility = View.GONE
+            it.userListLayout.visibility = View.VISIBLE
+        }
     }
 
     private fun displayLoadingError() {
-        binding.userListProgressBar.visibility = View.GONE
-        binding.errorContainer.visibility = View.VISIBLE
+        binding?.let {
+            it.userListProgressBar.visibility = View.GONE
+            it.errorContainer.visibility = View.VISIBLE
+        }
     }
 
     private fun navigateToCard(user: User) {
-        val mainActivity = activity as MainActivity
-        mainActivity.let {
+        val mainActivity = activity as MainActivity?
+        mainActivity?.let {
             val args = Bundle()
             args.putInt("id", user.id)
             args.putString("email", user.email)

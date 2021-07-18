@@ -1,15 +1,19 @@
 package com.example.rentateamtest.repository
 
+import com.example.rentateamtest.database.AppDatabase
+import com.example.rentateamtest.database.UserConverter
 import com.example.rentateamtest.model.User
 
-class OfflineUserListRepository : IUserListRepository {
+class OfflineUserListRepository(private val appDatabase: AppDatabase) : IUserListRepository {
 
-    override fun getUserList(): ArrayList<User>? {
+    override fun getUserList(): ArrayList<User> {
+        val userDao = appDatabase.userDao()
+        val tableList = userDao.getUserList()
         val list = arrayListOf<User>()
-        list.add(User(
-            1, "test@gmail.com", "Tsubasa", "Hanekawa",
-            "https://i1.sndcdn.com/avatars-fo4Vr0Le0ku0izIJ-uv5qbA-t500x500.jpg")
-        )
+        tableList.forEach {
+            val user = UserConverter.fromTableToUser(it)
+            list.add(user)
+        }
         return list
     }
 }
