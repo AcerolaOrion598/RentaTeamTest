@@ -31,7 +31,7 @@ class OnlineUserListRepository : IUserListRepository {
             GlobalScope.launch(Dispatchers.IO) {
                 restoreReceivedList(list)
             }
-            response.body()?.userList
+            list
         } else
             null
     }
